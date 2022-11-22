@@ -1,9 +1,9 @@
 import pandas as pd
-from sklearn.preprocessing import OneHotEncoder, LabelEncoder
-
+from typing import Optional, Callable
+from sklearn.preprocessing import LabelEncoder
 
 class UCIIncomeDataset:
-    def __init__(self, is_train: bool) -> None:
+    def __init__(self, is_train: bool = True, transform: Optional[Callable] = None) -> None:
         target_column = "salary"
         df: pd.DataFrame
 
@@ -17,11 +17,18 @@ class UCIIncomeDataset:
         self.__X = df.drop(target_column, axis=1)
         self.__y = df[target_column]
 
-        # categorical columns
-        categorical_columns = self.__X.select_dtypes(include="object").columns
+        # transform
+        self.transform = transform
+
+        # label encoding
+        l_encoder = LabelEncoder()
+        encoded_labels = l_encoder.fit_transform(self.__y)
+        self.__y = pd.Series(encoded_labels, name=target_column)
 
     @property
     def X(self) -> pd.DataFrame:
+        if self.transform is not None:
+            self.__X = self.transform(self.__X)
         return self.__X
 
     @property
