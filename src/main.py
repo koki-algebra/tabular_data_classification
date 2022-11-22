@@ -1,5 +1,6 @@
+import numpy as np
 import lightgbm as lgb
-from sklearn.metrics import auc, roc_curve
+from sklearn.metrics import accuracy_score
 
 from datasets import UCIIncomeDataset
 from transforms import label_encoding
@@ -19,7 +20,7 @@ lgb_test = lgb.Dataset(X_test, y_test, reference=lgb_train)
 
 params = {
     "objective": "binary",
-    "metric": "auc",
+    "metric": "binary_error",
     "force_row_wise": True
 }
 
@@ -40,9 +41,11 @@ model.save_model("lightgbm.txt")
 
 # prediction
 bst = lgb.Booster(model_file="lightgbm.txt")
-y_pred = bst.predict(X_test, num_iteration=bst.best_iteration)
+y_pred_prob = bst.predict(X_test, num_iteration=bst.best_iteration)
 
-# AUC
-fpr, tpr, thresholds = roc_curve(y_test, y_pred)
-auc = auc(fpr, tpr)
-print(f"AUC: {auc}")
+# thresholding
+y_pred = np.where(y_pred_prob > 0.5, 1, 0)
+
+# accuracy
+accuracy = accuracy_score(y_true=y_test, y_pred=y_pred)
+print(f"accuracy: {accuracy}")
