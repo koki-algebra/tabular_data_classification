@@ -20,23 +20,6 @@ class UCIIncomeDataset:
         # categorical columns
         categorical_columns = self.__X.select_dtypes(include="object").columns
 
-        # one-hot encoding
-        encoder = OneHotEncoder(handle_unknown="ignore")
-        encoder.fit(self.__X[categorical_columns].values.reshape(-1, 1))
-        encoded_data = encoder.transform(
-            self.__X[categorical_columns].values.reshape(-1, 1)
-        )
-        self.__X = pd.DataFrame(encoded_data)
-
-        # label encoding
-        l_encoder = LabelEncoder()
-        l_encoder.fit(self.__y)
-        encoded_label = l_encoder.transform(self.__y)
-        self.__y = pd.Series(encoded_label)
-
-        print(self.__X.shape)
-        print(self.__y.shape)
-
     @property
     def X(self) -> pd.DataFrame:
         return self.__X
