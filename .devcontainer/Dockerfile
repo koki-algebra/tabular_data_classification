@@ -24,3 +24,5 @@ RUN apt-get update \
 #     && apt-get -y install --no-install-recommends <your-package-list-here>
 
 USER jovyan
+
+RUN pip install lightgbm
