@@ -4,10 +4,15 @@ from sklearn.metrics import accuracy_score
 
 from utils import get_dataset
 
-dataset, cat_idxs, cat_dims = get_dataset("./data/uci_income/adult.csv", target="salary")
+dataset, cat_idxs, cat_dims = get_dataset("./data/uci_income/adult.csv", target="salary", labeled_ratio=0.05)
 
 X_train, y_train = dataset["train_labeled"]
 X_test, y_test = dataset["test"]
+
+# print data size
+print(f"train size = {X_train.shape[0]}")
+print(f"test size = {X_test.shape[0]}")
+
 
 # LightGBM dataset
 lgb_train = lgb.Dataset(data=X_train, label=y_train)
