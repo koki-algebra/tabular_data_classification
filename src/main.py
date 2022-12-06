@@ -2,22 +2,18 @@ import numpy as np
 import lightgbm as lgb
 from sklearn.metrics import accuracy_score
 
-from datasets import UCIIncomeDataset
-from transforms import label_encoding
+from utils import get_dataset
 
-# UCI Income Dataset
-train_data = UCIIncomeDataset(is_train=True, transform=label_encoding)
-test_data = UCIIncomeDataset(is_train=False, transform=label_encoding)
+dataset, cat_idxs, cat_dims = get_dataset("./data/uci_income/adult.csv", target="salary")
 
-X_train = train_data.X
-y_train = train_data.y
-X_test = test_data.X
-y_test = test_data.y
+X_train, y_train = dataset["train_labeled"]
+X_test, y_test = dataset["test"]
 
-# LightGBM
-lgb_train = lgb.Dataset(X_train, y_train)
-lgb_test = lgb.Dataset(X_test, y_test, reference=lgb_train)
+# LightGBM dataset
+lgb_train = lgb.Dataset(data=X_train, label=y_train)
+lgb_test = lgb.Dataset(data=X_test, label=y_test, reference=lgb_train)
 
+# parameters
 params = {
     "objective": "binary",
     "metric": "binary_error",
@@ -31,7 +27,7 @@ model = lgb.train(
     valid_sets=lgb_test,
     num_boost_round=1000,
     callbacks=[lgb.early_stopping(
-        stopping_rounds=10,
+        stopping_rounds=100,
         verbose=True
     )]
 )
